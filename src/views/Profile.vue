@@ -17,41 +17,27 @@
               </div>
             </div>
             <div class="mt-5 md:mt-0 md:col-span-2">
-              <form action="#" method="POST">
+              <form @submit.prevent="updateProfile">
                 <div class="shadow sm:rounded-md sm:overflow-hidden">
                   <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
                     <div class="grid grid-cols-6 gap-6">
-                      <div class="col-span-6 sm:col-span-3">
+                      <div class="col-span-12 sm:col-span-12">
                         <label
-                          for="first-name"
+                          for="dislay-name"
                           class="block text-sm font-medium text-gray-700"
-                          >First name</label
+                          >Full name</label
                         >
                         <input
                           type="text"
-                          name="first-name"
-                          id="first-name"
+                          name="dislay-name"
+                          id="dislay-name"
+                          v-model="displayName"
                           autocomplete="given-name"
                           class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                         />
                       </div>
 
-                      <div class="col-span-6 sm:col-span-3">
-                        <label
-                          for="last-name"
-                          class="block text-sm font-medium text-gray-700"
-                          >Last name</label
-                        >
-                        <input
-                          type="text"
-                          name="last-name"
-                          id="last-name"
-                          autocomplete="family-name"
-                          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                        />
-                      </div>
-
-                      <div class="col-span-6 sm:col-span-3">
+                      <div class="col-span-12 sm:col-span-3">
                         <label
                           for="email-address"
                           class="block text-sm font-medium text-gray-700"
@@ -61,11 +47,14 @@
                           type="text"
                           name="email-address"
                           id="email-address"
+                          v-model="email"
                           autocomplete="email"
-                          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                          disabled
+                          readonly
+                          class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         />
                       </div>
-                      <div class="col-span-6 sm:col-span-3">
+                      <div class="col-span-12 sm:col-span-3">
                         <label
                           for="company-website"
                           class="block text-sm font-medium text-gray-700"
@@ -80,6 +69,7 @@
                           </span>
                           <input
                             type="text"
+                            v-model="website"
                             name="company-website"
                             id="company-website"
                             class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
@@ -101,8 +91,9 @@
                           id="about"
                           name="about"
                           rows="3"
+                          v-model="about"
                           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                          placeholder="you@example.com"
+                          placeholder="Discribe what you do..."
                         />
                       </div>
                       <p class="mt-2 text-sm text-gray-500">
@@ -183,6 +174,9 @@
                     </div> -->
                   </div>
                   <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                    <p class="float-left" v-if="success">
+                      Your profile has been updated successfully!
+                    </p>
                     <button
                       type="submit"
                       class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -206,7 +200,59 @@ import DashboardNav from "../components/DashboardNav.vue";
 
 <script>
 //TODO Save profile Data to Firebase Cloud Firestore
-export default {};
+import { mapState } from "vuex";
+export default {
+  data() {
+    return {
+      displayName: "",
+      email: "",
+      website: "",
+      about: "",
+      photoURL: "",
+      success: false,
+    };
+  },
+  computed: {
+    ...mapState("auth", {
+      account: (state) => state.account,
+    }),
+  },
+  methods: {
+    updateProfile() {
+      this.$store
+        .dispatch("auth/updateAccount", {
+          displayName: this.displayName,
+          website: this.website,
+          about: this.about,
+          photoURL: this.photoURL,
+        })
+        .then((res) => {
+          this.success = true;
+
+          setTimeout(() => {
+            this.success = false;
+          }, 2500);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+  },
+  watch: {
+    account: {
+      handler: function (account) {
+        if (account) {
+          this.displayName = account.displayName;
+          this.email = account.email;
+          this.website = account?.website || "";
+          this.about = account?.about || "";
+          this.photoURL = account?.photoURL || "";
+        }
+      },
+      immediate: true,
+    },
+  },
+};
 </script>
 
 <style></style>

@@ -23,7 +23,7 @@
           </router-link>
         </p>
       </div>
-      <form class="mt-8 space-y-6" action="#" method="POST">
+      <form class="mt-8 space-y-6" @submit.prevent="login">
         <input type="hidden" name="remember" value="true" />
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
@@ -32,8 +32,9 @@
               id="email-address"
               name="email"
               type="email"
+              v-model="email"
               autocomplete="email"
-              required=""
+              required="true"
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Email address"
             />
@@ -44,8 +45,9 @@
               id="password"
               name="password"
               type="password"
+              v-model="password"
               autocomplete="current-password"
-              required=""
+              required="true"
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Password"
             />
@@ -67,14 +69,15 @@
 
           <div class="text-sm">
             <a
-              href="#"
+              @click="frogotPW"
+              href="javascript:void(0);"
               class="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Forgot your password?
             </a>
           </div>
         </div>
-
+        <p class="text-lime-600" v-if="success">{{ success }}</p>
         <div>
           <button
             type="submit"
@@ -89,6 +92,7 @@
             Sign in
           </button>
         </div>
+        <p class="text-red-500" v-if="error">{{ error }}</p>
         <p class="font-medium text-gray-500">Don't have an account?</p>
         <router-link
           to="/signup"
@@ -103,4 +107,47 @@
 
 <script setup>
 import { LockClosedIcon } from "@heroicons/vue/solid";
+</script>
+<script>
+export default {
+  data() {
+    return {
+      email: "",
+      password: "",
+      error: "",
+      success: "",
+    };
+  },
+  methods: {
+    login() {
+      this.reset();
+      this.$store
+        .dispatch("auth/logIn", {
+          email: this.email,
+          password: this.password,
+        })
+        .then((res) => {
+          this.$router.push("/dashboard");
+        })
+        .catch((err) => {
+          this.error = err;
+        });
+    },
+    frogotPW() {
+      this.reset();
+      this.$store
+        .dispatch("auth/forgotPassword", this.email)
+        .then((res) => {
+          this.success = res;
+        })
+        .catch((err) => {
+          this.error = err;
+        });
+    },
+    reset() {
+      this.error = "";
+      this.success = "";
+    },
+  },
+};
 </script>

@@ -21,6 +21,9 @@
               <input
                 type="text"
                 id="base-input"
+                v-model="title"
+                required="true"
+                minlength="5"
                 placeholder="Title of your challenge"
                 class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               />
@@ -34,6 +37,9 @@
               <textarea
                 id="message"
                 rows="4"
+                required="true"
+                minlength="50"
+                v-model="description"
                 class="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Describe the challenge..."
               ></textarea>
@@ -51,8 +57,8 @@
                 v-for="env in enviroments"
                 :key="env"
                 href="#"
-                :class="selEnv == env ? 'text-white bg-blue-700' : ''"
-                @click="selEnv = env"
+                :class="enviroment == env ? 'text-white bg-blue-700' : ''"
+                @click="enviroment = env"
                 class="block p-6 max-w-sm bg-white rounded-lg border border-gray-200 shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
               >
                 <h5
@@ -81,17 +87,21 @@
 import DashboardNav from "../components/DashboardNav.vue";
 import ChallengeCard from "../components/ChallengeCard.vue";
 const enviroments = ["Vue", "Angular", "React", "Nodejs"];
-import { ref } from "vue";
-const selEnv = ref("Vue");
-</script>
-<script>
-export default {
-  methods: {
-    createChallenge() {
-      //TODO write the challenge in DB
-    },
-  },
-};
+import { ref, computed } from "vue";
+import { useStore } from "vuex";
+const { dispatch, getters } = useStore();
+const enviroment = ref("Vue");
+const title = ref("");
+const description = ref("");
+const createdBy = computed(() => getters["auth/account"]?.uid);
+function createChallenge() {
+  dispatch("challenge/createChallenge", {
+    title: title.value,
+    description: description.value,
+    enviroment: enviroment.value,
+    createdBy: createdBy.value,
+  });
+}
 </script>
 
 <style></style>

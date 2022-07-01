@@ -60,6 +60,7 @@
                     v-slot="{ active }"
                   >
                     <router-link
+                      v-if="item.name != 'Sign out'"
                       :to="item.to"
                       :class="[
                         active ? 'bg-gray-100' : '',
@@ -67,6 +68,17 @@
                       ]"
                       >{{ item.name }}</router-link
                     >
+                    <a
+                      v-else
+                      @click="signOut"
+                      href="javascript:void(0);"
+                      :class="[
+                        active ? 'bg-gray-100' : '',
+                        'block px-4 py-2 text-sm text-gray-700',
+                      ]"
+                    >
+                      Sign out
+                    </a>
                   </MenuItem>
                 </MenuItems>
               </transition>
@@ -108,7 +120,8 @@
             v-for="item in userNavigation"
             :key="item.name"
             as="a"
-            :to="item.to"
+            :to="item.name != 'Sign out' ? item.to : ''"
+            @click="item.name == 'Sign out' ? signOut : ''"
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
             >{{ item.name }}</DisclosureButton
           >
@@ -129,12 +142,12 @@ import {
   MenuItems,
 } from "@headlessui/vue";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/vue/outline";
+import { useStore } from "vuex";
 
 const user = {
   name: "Tom Cook",
   email: "tom@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+  imageUrl: "/defaultUser.svg",
 };
 const navigation = [
   { name: "Dashboard", to: "/dashboard" },
@@ -144,6 +157,14 @@ const userNavigation = [
   { name: "Your Profile", to: "/profile" },
   { name: "Sign out", to: "#" },
 ];
+const { dispatch, state } = useStore();
+user.name = state.auth.account?.displayName;
+user.email = state.auth.account?.email;
+user.imageUrl = state.auth.account?.photoURL || "/defaultUser.svg";
+
+function signOut() {
+  dispatch("auth/signingOut");
+}
 </script>
 
 <style></style>

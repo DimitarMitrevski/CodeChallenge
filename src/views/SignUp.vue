@@ -23,7 +23,7 @@
           </router-link>
         </p>
       </div>
-      <div>
+      <div class="text-center">
         <button
           type="button"
           :class="isEmployer"
@@ -44,6 +44,22 @@
         <input type="hidden" name="remember" value="true" />
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
+            <label for="displayName" class="sr-only">{{
+              accountType == "Employer" ? "Company's name" : "Full name"
+            }}</label>
+            <input
+              id="display-name"
+              name="displayName"
+              type="text"
+              v-model="displayName"
+              required="true"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              :placeholder="
+                accountType == `Employer` ? `Company's name` : `Full name`
+              "
+            />
+          </div>
+          <div>
             <label for="email-address" class="sr-only">Email address</label>
             <input
               id="email-address"
@@ -52,7 +68,7 @@
               v-model="email"
               autocomplete="email"
               required="true"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Email address"
             />
           </div>
@@ -85,13 +101,18 @@
             Create account
           </button>
         </div>
-        <p class="font-medium text-gray-500">Already have an account?</p>
-        <router-link
-          to="/login"
-          class="font-medium text-indigo-600 hover:text-indigo-500"
-        >
-          Sign in
-        </router-link>
+        <p class="text-red-500 text-center" v-if="error">
+          {{ error }}
+        </p>
+        <div class="text-center">
+          <p class="font-medium text-gray-500">Already have an account?</p>
+          <router-link
+            to="/login"
+            class="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            Sign in
+          </router-link>
+        </div>
       </form>
     </div>
   </div>
@@ -108,6 +129,8 @@ export default {
       accountType: "Employer",
       email: "",
       password: "",
+      displayName: "",
+      error: "",
     };
   },
   computed: {
@@ -127,12 +150,20 @@ export default {
       this.accountType = type;
     },
     createAccount() {
-      console.log(this.email, this.password);
-      this.$store.dispatch("auth/signUp", {
-        email: this.email,
-        password: this.password,
-        accountType: this.accountType,
-      });
+      this.error = "";
+      this.$store
+        .dispatch("auth/signUp", {
+          email: this.email,
+          password: this.password,
+          accountType: this.accountType,
+          displayName: this.displayName,
+        })
+        .then((res) => {
+          this.$router.replace("/profile");
+        })
+        .catch((err) => {
+          this.error = err;
+        });
     },
   },
 };
