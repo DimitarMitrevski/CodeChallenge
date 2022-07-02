@@ -1,9 +1,11 @@
 <template>
   <div
     class="p-6 max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700"
-    :key="i"
   >
-    <div class="flex justify-end pt-4 relative">
+    <div
+      class="flex justify-end pt-4 relative"
+      v-if="$store.state.auth.uid == createdBy"
+    >
       <button
         id="dropdownButton"
         data-dropdown-toggle="dropdown"
@@ -35,15 +37,16 @@
       >
         <ul class="py-1" aria-labelledby="dropdownButton">
           <li>
-            <a
-              href="#"
+            <router-link
+              :to="`/edit/${uid}`"
               class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-              >Edit</a
+              >Edit</router-link
             >
           </li>
           <li>
             <a
-              href="#"
+              href="javascript:void(0)"
+              @click="del"
               class="block py-2 px-4 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
               >Delete</a
             >
@@ -55,15 +58,14 @@
       <h5
         class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
       >
-        Noteworthy technology acquisitions 2021
+        {{ title }}
       </h5>
     </a>
-    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-      Here are the biggest enterprise technology acquisitions of 2021 so far, in
-      reverse chronological order.
+    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 break-all">
+      {{ descTrimmed }}
     </p>
-    <a
-      href="#"
+    <router-link
+      :to="`/challenge/${uid}`"
       class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
     >
       Read more
@@ -79,12 +81,42 @@
           clip-rule="evenodd"
         ></path>
       </svg>
-    </a>
+    </router-link>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    title: {
+      type: String,
+      default: "",
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+    uid: {
+      type: String,
+      default: "",
+    },
+    createdBy: {
+      type: String,
+      default: "",
+    },
+  },
+  computed: {
+    descTrimmed() {
+      let desc = this.description.replace(/<\/?[^>]+(>|$)/g, "");
+      return desc.length > 120 ? desc.slice(0, 115) + "..." : desc;
+    },
+  },
+  methods: {
+    del() {
+      this.open = false;
+      this.$emit("delete", this.uid);
+    },
+  },
   data() {
     return {
       open: false,

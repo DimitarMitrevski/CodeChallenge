@@ -6,6 +6,9 @@ import SignUp from "../views/SignUp.vue";
 import Dashboard from "../views/Dashboard.vue";
 import NewChallenge from "../views/NewChallenge.vue";
 import Profile from "../views/Profile.vue";
+import EditChallenge from "../views/EditChallenge.vue";
+import ChallengeView from "../views/ChallengeView.vue";
+import JoinChallenge from "../views/JoinChallenge.vue";
 
 const routes = [
   {
@@ -42,6 +45,21 @@ const routes = [
     path: "/profile",
     name: "Profile",
     component: Profile,
+  },
+  {
+    path: "/edit/:id",
+    name: "EditChallenge",
+    component: EditChallenge,
+  },
+  {
+    path: "/challenge/:id",
+    name: "ChallengeView",
+    component: ChallengeView,
+  },
+  {
+    path: "/join/challenge",
+    name: "JoinChallenge",
+    component: JoinChallenge,
   },
 ];
 

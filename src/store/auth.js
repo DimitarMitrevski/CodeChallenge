@@ -7,7 +7,6 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { async } from "@firebase/util";
 export default {
   namespaced: true,
   state: {
@@ -16,6 +15,7 @@ export default {
   },
   getters: {
     account: (state) => state.account,
+    accountType: (state) => state.accountType,
   },
 
   mutations: {
@@ -127,7 +127,6 @@ export default {
         if (docSnap.exists()) {
           account = { ...user, ...docSnap.data() };
         }
-        console.log("No such document!");
       }
       if (account && accountType) {
         commit("SET_ACCOUNT", account);
@@ -145,6 +144,11 @@ export default {
           { merge: true }
         )
           .then((res) => {
+            updateProfile(auth.currentUser, {
+              ...data,
+            }).then(async () => {
+              console.log("Display name updated");
+            });
             commit("SET_ACCOUNT", { ...state.account, ...data });
             resolve("We have successfully updated the documents!");
           })

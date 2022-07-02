@@ -1,6 +1,7 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
+import Alert from "./components/Alert.vue";
 import { auth } from "./services/firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
 import { useStore } from "vuex";
@@ -24,6 +25,7 @@ onAuthStateChanged(auth, (user) => {
 </script>
 
 <template>
+  <Alert />
   <router-view />
   <footer class="text-center">
     <p class="m-2 text-gray-500">

@@ -4,14 +4,14 @@
 
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Create a new challenge</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Edit challenge</h1>
       </div>
     </header>
     <main>
       <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <!-- Replace with your content -->
         <div class="px-4 py-6 sm:px-0">
-          <form @submit.prevent="createChallenge">
+          <form @submit.prevent="updateChallenge">
             <div class="mb-6">
               <label
                 for="base-input"
@@ -73,7 +73,7 @@
               type="submit"
               class="px-5 py-3 mt-5 block w-full text-base font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              Create
+              Update
             </button>
           </form>
         </div>
@@ -91,26 +91,41 @@ import { VueEditor } from "vue3-editor";
 const enviroments = ["Vue", "Angular", "React", "Nodejs"];
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 const { dispatch, getters } = useStore();
+const route = useRoute();
+const id = route.params.id;
+const router = useRouter();
+
 const enviroment = ref("Vue");
 const title = ref("");
 const description = ref("");
 const createdBy = computed(() => getters["auth/account"]?.uid);
 
-const router = useRouter();
-
-function createChallenge() {
-  dispatch("challenge/createChallenge", {
+function updateChallenge() {
+  dispatch("challenge/updatedChallenge", {
     title: title.value,
     description: description.value,
     enviroment: enviroment.value,
     createdBy: createdBy.value,
-    createdOn: Date.now(),
+    id,
   }).then((res) => {
-    router.push("/dashboard?alert=Challenge has been successfully created!");
+    router.push("/dashboard?alert=Challenge has been successfully updated!");
   });
 }
+</script>
+<script>
+export default {
+  async created() {
+    const challenge = await this.$store.dispatch(
+      "challenge/getChallengeById",
+      this.id
+    );
+    this.title = challenge.title;
+    this.description = challenge.description;
+    this.enviroment = challenge.enviroment;
+  },
+};
 </script>
 
 <style></style>

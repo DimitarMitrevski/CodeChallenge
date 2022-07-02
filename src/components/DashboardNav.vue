@@ -143,28 +143,52 @@ import {
 } from "@headlessui/vue";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/vue/outline";
 import { useStore } from "vuex";
-
+import { computed } from "vue";
 const user = {
   name: "Tom Cook",
   email: "tom@example.com",
   imageUrl: "/defaultUser.svg",
 };
-const navigation = [
-  { name: "Dashboard", to: "/dashboard" },
-  { name: "Create a challenge", to: "/new/challenge" },
-];
+
 const userNavigation = [
   { name: "Your Profile", to: "/profile" },
   { name: "Sign out", to: "#" },
 ];
-const { dispatch, state } = useStore();
+const { dispatch, state, getters } = useStore();
 user.name = state.auth.account?.displayName;
 user.email = state.auth.account?.email;
 user.imageUrl = state.auth.account?.photoURL || "/defaultUser.svg";
-
+const accountType = computed(() => getters["auth/accountType"]);
 function signOut() {
   dispatch("auth/signingOut");
 }
+</script>
+<script>
+export default {
+  data() {
+    return {
+      navigation: [],
+    };
+  },
+  watch: {
+    accountType: {
+      handler: function (val) {
+        if (val == "Employer") {
+          this.navigation = [
+            { name: "Dashboard", to: "/dashboard" },
+            { name: "Create a challenge", to: "/new/challenge" },
+          ];
+        } else if (val == "Developer") {
+          this.navigation = [
+            { name: "Dashboard", to: "/dashboard" },
+            { name: "Join a challenge", to: "/join/challenge" },
+          ];
+        }
+      },
+      immediate: true,
+    },
+  },
+};
 </script>
 
 <style></style>
