@@ -22,6 +22,7 @@
             :title="challenge.title"
             :description="challenge.description"
             :createdBy="challenge.createdBy"
+            :status="challenge.status || ''"
             @delete="deleteChallenge"
           />
         </div>
@@ -84,8 +85,10 @@ export default {
   watch: {
     uid: {
       handler: function (uid) {
-        if (uid) {
+        if (uid && this.accountType == "Employer") {
           this.$store.dispatch("challenge/getAllCompChallenges", uid);
+        } else if (uid && this.accountType == "Developer") {
+          this.$store.dispatch("challenge/getAllJoinedChallenges", uid);
         }
       },
       immediate: true,

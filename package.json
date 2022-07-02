@@ -13,6 +13,7 @@
     "@stackblitz/sdk": "^1.8.0",
     "firebase": "^9.8.4",
     "vue": "^3.2.25",
+    "vue-confetti": "^2.3.0",
     "vue-router": "^4.0.13",
     "vue3-editor": "^0.1.1",
     "vuex": "^4.0.2"

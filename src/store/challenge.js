@@ -10,7 +10,9 @@ import {
   getDocs,
   orderBy,
   deleteDoc,
+  limit,
 } from "firebase/firestore";
+import { async } from "@firebase/util";
 export default {
   namespaced: true,
   state: {
@@ -113,6 +115,129 @@ export default {
           .catch((err) => {
             reject("An error occurred while deleting the document", err);
           });
+      });
+    },
+    async joinChallenge(state, { developerId, challengeId }) {
+      return new Promise(async (resolve, reject) => {
+        const developerRef = doc(db, "Developer", developerId);
+        const challengeRef = doc(db, "Challenges", challengeId);
+        await addDoc(collection(db, "Join"), {
+          developerRef,
+          challengeRef,
+          timestamp: Date.now(),
+          status: "joined",
+        })
+          .then((doc) => {
+            resolve({ id: doc.id });
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      });
+    },
+    async alreadyJoined(state, { developerId, challengeId }) {
+      try {
+        const developerRef = doc(db, "Developer", developerId);
+        const challengeRef = doc(db, "Challenges", challengeId);
+        const q = query(
+          collection(db, "Join"),
+          where("developerRef", "==", developerRef),
+          where("challengeRef", "==", challengeRef),
+          limit(1)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          let join;
+          querySnapshot.forEach((doc) => {
+            let { status } = doc.data();
+            join = { id: doc.id, submitted: status == "submitted" };
+          });
+          return join;
+        }
+        return !querySnapshot.empty;
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async getAllJoinedChallenges({ commit }, developerId) {
+      try {
+        const developerRef = doc(db, "Developer", developerId);
+        const q = query(
+          collection(db, "Join"),
+          where("developerRef", "==", developerRef)
+        );
+        const querySnapshot = await getDocs(q);
+        let joins = [];
+        querySnapshot.forEach(async (doc) => {
+          let join = doc.data();
+          joins.push({ ...join });
+        });
+        let challenges = [];
+        joins.forEach((j) => {
+          let challenge = getDoc(j.challengeRef);
+          challenges.push(challenge);
+        });
+        challenges = await Promise.all(challenges).then((docs) => {
+          return docs.map((doc, i) => {
+            return {
+              ...doc.data(),
+              ...joins[i],
+              id: joins[i].challengeRef.id,
+            };
+          });
+        });
+        challenges.sort((a, b) => {
+          const aTimestamp = a.timestamp;
+          const bTimestamp = b.timestamp;
+
+          if (aTimestamp > bTimestamp) {
+            return -1;
+          } else if (aTimestamp < bTimestamp) {
+            return 1;
+          }
+          return 0;
+        });
+        commit("SET_CHALLENGES", challenges);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async leaveChallenge(state, { developerId, challengeId }) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const developerRef = doc(db, "Developer", developerId);
+          const challengeRef = doc(db, "Challenges", challengeId);
+          const q = query(
+            collection(db, "Join"),
+            where("developerRef", "==", developerRef),
+            where("challengeRef", "==", challengeRef),
+            limit(1)
+          );
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+          });
+          resolve(true);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    },
+    submitSolution(state, { joinId, solution }) {
+      return new Promise((resolve, reject) => {
+        const docRef = doc(db, "Join", joinId);
+        setDoc(
+          docRef,
+          {
+            status: "submitted",
+            solution,
+          },
+          { merge: true }
+        ).then(() => {
+          resolve("Document updated successfully");
+        });
+      }).catch((err) => {
+        reject("An error occurred during updating solution");
       });
     },
   },

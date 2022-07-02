@@ -2,9 +2,20 @@
   <div
     class="p-6 max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700"
   >
+    <a
+      v-if="status"
+      :class="
+        status == 'joined'
+          ? 'bg-blue-100 hover:bg-blue-200 text-blue-800'
+          : 'bg-green-100 hover:bg-green-200 text-green-800'
+      "
+      class="text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 dark:hover:bg-blue-300"
+      >{{ status.toUpperCase() }}</a
+    >
+
     <div
-      class="flex justify-end pt-4 relative"
-      v-if="$store.state.auth.uid == createdBy"
+      class="flex justify-end relative"
+      v-if="$store.state.auth.account.uid == createdBy"
     >
       <button
         id="dropdownButton"
@@ -30,8 +41,8 @@
         :class="open ? 'block' : 'hidden'"
         :style="
           open
-            ? 'position: absolute; right:-15px; top:61px;'
-            : 'position: absolute; right:-15px; top:61px;'
+            ? 'position: absolute; right:-15px; top:45px;'
+            : 'position: absolute; right:-15px; top:45px;'
         "
         class="z-10 w-44 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700"
       >
@@ -54,13 +65,13 @@
         </ul>
       </div>
     </div>
-    <a href="#">
+    <router-link :to="`/challenge/${uid}`">
       <h5
-        class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+        class="my-2 text-2xl font-bold tracking-tight text-gray-900 hover:text-gray-600 dark:text-white"
       >
         {{ title }}
       </h5>
-    </a>
+    </router-link>
     <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 break-all">
       {{ descTrimmed }}
     </p>
@@ -68,7 +79,7 @@
       :to="`/challenge/${uid}`"
       class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
     >
-      Read more
+      {{ status && status == "joined" ? "Countiniue coding" : "Read more" }}
       <svg
         class="ml-2 -mr-1 w-4 h-4"
         fill="currentColor"
@@ -101,6 +112,10 @@ export default {
       default: "",
     },
     createdBy: {
+      type: String,
+      default: "",
+    },
+    status: {
       type: String,
       default: "",
     },
