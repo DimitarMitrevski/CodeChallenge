@@ -102,8 +102,7 @@
         <DisclosureButton
           v-for="item in navigation"
           :key="item.name"
-          as="a"
-          :to="item.to"
+          as="div"
           :class="[
             item.to == $route.path
               ? 'bg-gray-900 text-white'
@@ -111,18 +110,24 @@
             'block px-3 py-2 rounded-md text-base font-medium',
           ]"
           :aria-current="item.to == $route.path ? 'page' : undefined"
-          >{{ item.name }}</DisclosureButton
+          @click="$router.push(item.to)"
         >
+          {{ item.name }}
+        </DisclosureButton>
       </div>
       <div class="pt-4 pb-3 border-t border-gray-700">
         <div class="mt-3 px-2 space-y-1">
           <DisclosureButton
             v-for="item in userNavigation"
             :key="item.name"
-            as="a"
-            :to="item.name != 'Sign out' ? item.to : ''"
-            @click="item.name == 'Sign out' ? signOut : ''"
-            class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
+            as="div"
+            @click="item.name == 'Sign out' ? signOut() : $router.push(item.to)"
+            :class="[
+              item.to == $route.path
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+              'block px-3 py-2 rounded-md text-base font-medium',
+            ]"
             >{{ item.name }}</DisclosureButton
           >
         </div>
@@ -160,6 +165,7 @@ const { dispatch, state, getters } = useStore();
 const account = computed(() => getters["auth/account"]);
 const accountType = computed(() => getters["auth/accountType"]);
 function signOut() {
+  console.log("this is called");
   dispatch("auth/signingOut");
 }
 
