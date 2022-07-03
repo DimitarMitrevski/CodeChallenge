@@ -240,5 +240,36 @@ export default {
         reject("An error occurred during updating solution");
       });
     },
+    async getParticipants(state, { challengeId }) {
+      console.log("This is executeds");
+      const challengeRef = doc(db, "Challenges", challengeId);
+      const q = query(
+        collection(db, "Join"),
+        where("challengeRef", "==", challengeRef)
+      );
+      const querySnapshot = await getDocs(q);
+      let submissions = [];
+      let joins = [];
+      if (querySnapshot.empty) {
+        return { submissions, joins };
+      }
+      querySnapshot.forEach((doc) => {
+        joins.push(doc.data());
+      });
+      let persons = [];
+      joins.map((join) => {
+        let person = getDoc(join.developerRef);
+        persons.push(person);
+        return join;
+      });
+      persons = await Promise.all(persons).then((res) => {
+        return res.map((per) => per.data());
+      });
+      joins = joins.map((join, i) => {
+        return { ...join, ...persons[i] };
+      });
+      submissions = joins.filter((join) => join.status == "submitted");
+      return { joins, submissions };
+    },
   },
 };

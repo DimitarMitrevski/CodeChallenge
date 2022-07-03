@@ -93,13 +93,15 @@
           </button>
         </div>
         <p class="text-red-500" v-if="error">{{ error }}</p>
-        <p class="font-medium text-gray-500">Don't have an account?</p>
-        <router-link
-          to="/signup"
-          class="font-medium text-indigo-600 hover:text-indigo-500"
-        >
-          Sign up
-        </router-link>
+        <div class="text-center">
+          <p class="font-medium text-gray-500">Don't have an account?</p>
+          <router-link
+            to="/signup"
+            class="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            Sign up
+          </router-link>
+        </div>
       </form>
     </div>
   </div>

@@ -108,24 +108,27 @@
                       </label>
                       <div class="mt-1 flex items-center">
                         <span
-                          class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100"
+                          class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-300 object-cover"
                         >
-                          <svg
-                            class="h-full w-full text-gray-300"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"
-                            />
-                          </svg>
+                          <img
+                            :src="photoURL || '/defaultUser.svg'"
+                            ref="image"
+                          />
                         </span>
                         <button
+                          onclick="upldImg.click()"
                           type="button"
                           class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           Change
                         </button>
+                        <input
+                          id="upldImg"
+                          type="file"
+                          accept=".png, .jpg, .jpeg"
+                          @change="uploadFile"
+                          hidden
+                        />
                       </div>
                     </div>
 
@@ -199,8 +202,8 @@ import DashboardNav from "../components/DashboardNav.vue";
 </script>
 
 <script>
-//TODO Save profile Data to Firebase Cloud Firestore
 import { mapState } from "vuex";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 export default {
   data() {
     return {
@@ -210,15 +213,20 @@ export default {
       about: "",
       photoURL: "",
       success: false,
+      file: null,
     };
   },
   computed: {
     ...mapState("auth", {
       account: (state) => state.account,
+      accountType: (state) => state.accountType,
     }),
   },
   methods: {
-    updateProfile() {
+    async updateProfile() {
+      if (this.file) {
+        await this.uploadImage();
+      }
       this.$store
         .dispatch("auth/updateAccount", {
           displayName: this.displayName,
@@ -236,6 +244,23 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+    },
+    uploadFile(e) {
+      const file = e.target.files[0];
+      this.$refs.image.src = URL.createObjectURL(event.target.files[0]);
+      this.file = file;
+    },
+    async uploadImage() {
+      const storage = getStorage();
+      const storageRef = ref(storage, this.accountType);
+
+      // 'file' comes from the Blob or File API
+      this.photoURL = await uploadBytes(storageRef, this.file).then(
+        async (snapshot) => {
+          console.log("Uploaded a blob or file!");
+          return await getDownloadURL(snapshot.ref);
+        }
+      );
     },
   },
   watch: {

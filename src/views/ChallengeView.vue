@@ -1,9 +1,30 @@
 <template>
+  <ConfirmModal
+    :openModal="open"
+    @close="open = false"
+    :uid="$route.params.id"
+  />
   <div class="min-h-full" id="challenge-view">
     <DashboardNav />
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">{{ challenge.title }}</h1>
+        <h1 class="text-3xl font-bold text-gray-900">
+          {{ challenge.title }}
+          <span class="float-right" v-if="uid == challenge.createdBy">
+            <router-link
+              :to="`/edit/${$route.params.id}`"
+              class="font-medium text-indigo-600 hover:text-indigo-500 text-base"
+              >Edit</router-link
+            >
+            |
+            <a
+              href="javascript:void(0)"
+              @click="open = true"
+              class="font-medium text-red-600 hover:text-red-500 text-base"
+              >Delete</a
+            ></span
+          >
+        </h1>
       </div>
     </header>
     <main>
@@ -82,6 +103,40 @@
           </p>
         </div>
 
+        <div class="mt-5" v-if="uid == challenge.createdBy">
+          <div class="mb-5">
+            <h3 class="text-xl text-gray-500 mb-5 font-bold">
+              Submitted solutions ({{ submissions.length }}/{{ joins.length }})
+            </h3>
+            <div v-if="submissions.length > 0">
+              <SubmitedCard
+                v-for="submission in submissions"
+                :key="submission.email"
+                :submission="submission"
+              />
+            </div>
+            <p v-else class="text-gray-500">
+              There are no solution submissions yet.
+            </p>
+          </div>
+          <hr />
+          <div class="my-5">
+            <h3 class="text-xl text-gray-500 mb-5 font-bold">
+              People who joined ({{ joins.length }})
+            </h3>
+            <div v-if="joins.length > 0">
+              <JoinedCard
+                v-for="join in joins"
+                :key="join.email"
+                :join="join"
+              />
+            </div>
+            <p v-else class="text-gray-500">
+              Nobody have joined the challenge yet.
+            </p>
+          </div>
+        </div>
+
         <!-- /End replace -->
       </div>
     </main>
@@ -89,7 +144,10 @@
 </template>
 <script setup>
 import DashboardNav from "../components/DashboardNav.vue";
+import SubmitedCard from "../components/SubmitedCard.vue";
+import JoinedCard from "../components/JoinedCard.vue";
 import { VueEditor } from "vue3-editor";
+import ConfirmModal from "../components/ConfirmModal.vue";
 </script>
 
 <script>
@@ -102,17 +160,15 @@ export default {
         title: "",
         description: "",
         enviroment: "",
+        createdBy: "",
       },
       joined: false,
       submitted: false,
       solution: "",
+      joins: [],
+      submissions: [],
+      open: false,
     };
-  },
-  async created() {
-    this.challenge = await this.$store.dispatch(
-      "challenge/getChallengeById",
-      this.$route.params.id
-    );
   },
   computed: {
     ...mapState("auth", {
@@ -202,7 +258,11 @@ export default {
   watch: {
     uid: {
       handler: async function (uid) {
-        if (uid) {
+        this.challenge = await this.$store.dispatch(
+          "challenge/getChallengeById",
+          this.$route.params.id
+        );
+        if (uid && uid != this.challenge.createdBy) {
           const { id, submitted } = await this.$store.dispatch(
             "challenge/alreadyJoined",
             {
@@ -217,6 +277,17 @@ export default {
             setTimeout(() => {
               this.stop();
             }, 2000);
+          }
+        } else if (uid) {
+          if (uid == this.challenge.createdBy) {
+            const { submissions, joins } = await this.$store.dispatch(
+              "challenge/getParticipants",
+              {
+                challengeId: this.$route.params.id,
+              }
+            );
+            this.submissions = submissions;
+            this.joins = joins;
           }
         }
       },

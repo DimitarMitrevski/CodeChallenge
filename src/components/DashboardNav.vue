@@ -37,7 +37,7 @@
                 >
                   <span class="sr-only">Open user menu</span>
                   <img
-                    class="h-8 w-8 rounded-full"
+                    class="h-8 w-8 rounded-full bg-gray-400"
                     :src="user.imageUrl"
                     alt=""
                   />
@@ -144,20 +144,13 @@ import {
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/vue/outline";
 import { useStore } from "vuex";
 import { computed } from "vue";
-const user = {
-  name: "Tom Cook",
-  email: "tom@example.com",
-  imageUrl: "/defaultUser.svg",
-};
 
 const userNavigation = [
   { name: "Your Profile", to: "/profile" },
   { name: "Sign out", to: "#" },
 ];
 const { dispatch, state, getters } = useStore();
-user.name = state.auth.account?.displayName;
-user.email = state.auth.account?.email;
-user.imageUrl = state.auth.account?.photoURL || "/defaultUser.svg";
+const account = computed(() => getters["auth/account"]);
 const accountType = computed(() => getters["auth/accountType"]);
 function signOut() {
   dispatch("auth/signingOut");
@@ -168,9 +161,24 @@ export default {
   data() {
     return {
       navigation: [],
+      user: {
+        name: "Dimitar Mitrevski",
+        email: "dimitar@bintern.com",
+        imageUrl: "/defaultUser.svg",
+      },
     };
   },
   watch: {
+    account: {
+      handler: function (account) {
+        if (Object.keys(account).length > 0) {
+          this.user.name = account?.displayName;
+          this.user.email = account?.email;
+          this.user.imageUrl = account?.photoURL || "/defaultUser.svg";
+        }
+      },
+      immediate: true,
+    },
     accountType: {
       handler: function (val) {
         if (val == "Employer") {
