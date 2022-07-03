@@ -50,7 +50,7 @@ import DashboardNav from "../components/DashboardNav.vue";
 import ConfirmModal from "../components/ConfirmModal.vue";
 import ChallengeCard from "../components/ChallengeCard.vue";
 import { useStore } from "vuex";
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 
 const store = useStore();
 const uid = computed(() => store.getters["auth/account"].uid);
@@ -67,32 +67,24 @@ const joinCreate = computed(() => {
     ? "Create a challenge"
     : "Join a challenge";
 });
-</script>
-<script>
-export default {
-  data() {
-    return {
-      open: false,
-      challengeID: "",
-    };
+
+const open = ref(false);
+const challengeID = ref("");
+
+function deleteChallenge(id) {
+  open.value = true;
+  challengeID.value = id;
+}
+
+watch(
+  () => uid.value,
+  (uid) => {
+    if (uid && accountType.value == "Employer") {
+      store.dispatch("challenge/getAllCompChallenges", uid);
+    } else if (uid && accountType.value == "Developer") {
+      store.dispatch("challenge/getAllJoinedChallenges", uid);
+    }
   },
-  methods: {
-    deleteChallenge(id) {
-      this.challengeID = id;
-      this.open = true;
-    },
-  },
-  watch: {
-    uid: {
-      handler: function (uid) {
-        if (uid && this.accountType == "Employer") {
-          this.$store.dispatch("challenge/getAllCompChallenges", uid);
-        } else if (uid && this.accountType == "Developer") {
-          this.$store.dispatch("challenge/getAllJoinedChallenges", uid);
-        }
-      },
-      immediate: true,
-    },
-  },
-};
+  { immediate: true }
+);
 </script>

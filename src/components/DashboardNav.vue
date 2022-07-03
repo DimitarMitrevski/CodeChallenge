@@ -143,7 +143,14 @@ import {
 } from "@headlessui/vue";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/vue/outline";
 import { useStore } from "vuex";
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
+
+const navigation = ref([]);
+const user = ref({
+  name: "Dimitar Mitrevski",
+  email: "dimitar@bintern.com",
+  imageUrl: "/defaultUser.svg",
+});
 
 const userNavigation = [
   { name: "Your Profile", to: "/profile" },
@@ -155,48 +162,37 @@ const accountType = computed(() => getters["auth/accountType"]);
 function signOut() {
   dispatch("auth/signingOut");
 }
-</script>
-<script>
-export default {
-  data() {
-    return {
-      navigation: [],
-      user: {
-        name: "Dimitar Mitrevski",
-        email: "dimitar@bintern.com",
-        imageUrl: "/defaultUser.svg",
-      },
+
+watch(
+  () => account.value,
+  (account) => {
+    const userAccount = {
+      name: account?.displayName,
+      email: account?.email,
+      imageUrl: account?.photoURL || "/defaultUser.svg",
     };
+    user.value = userAccount;
   },
-  watch: {
-    account: {
-      handler: function (account) {
-        if (Object.keys(account).length > 0) {
-          this.user.name = account?.displayName;
-          this.user.email = account?.email;
-          this.user.imageUrl = account?.photoURL || "/defaultUser.svg";
-        }
-      },
-      immediate: true,
-    },
-    accountType: {
-      handler: function (val) {
-        if (val == "Employer") {
-          this.navigation = [
-            { name: "Dashboard", to: "/dashboard" },
-            { name: "Create a challenge", to: "/new/challenge" },
-          ];
-        } else if (val == "Developer") {
-          this.navigation = [
-            { name: "Dashboard", to: "/dashboard" },
-            { name: "Join a challenge", to: "/join/challenge" },
-          ];
-        }
-      },
-      immediate: true,
-    },
+  { immediate: true }
+);
+
+watch(
+  () => accountType.value,
+  (val) => {
+    if (val == "Employer") {
+      navigation.value = [
+        { name: "Dashboard", to: "/dashboard" },
+        { name: "Create a challenge", to: "/new/challenge" },
+      ];
+    } else if (val == "Developer") {
+      navigation.value = [
+        { name: "Dashboard", to: "/dashboard" },
+        { name: "Join a challenge", to: "/join/challenge" },
+      ];
+    }
   },
-};
+  { immediate: true }
+);
 </script>
 
 <style></style>

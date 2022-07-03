@@ -12,7 +12,6 @@ import {
   deleteDoc,
   limit,
 } from "firebase/firestore";
-import { async } from "@firebase/util";
 export default {
   namespaced: true,
   state: {
@@ -245,6 +244,7 @@ export default {
       const challengeRef = doc(db, "Challenges", challengeId);
       const q = query(
         collection(db, "Join"),
+        orderBy("timestamp", "desc"),
         where("challengeRef", "==", challengeRef)
       );
       const querySnapshot = await getDocs(q);

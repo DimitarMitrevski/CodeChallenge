@@ -142,18 +142,22 @@
     </main>
   </div>
 </template>
-<script setup>
+
+<script>
 import DashboardNav from "../components/DashboardNav.vue";
 import SubmitedCard from "../components/SubmitedCard.vue";
 import JoinedCard from "../components/JoinedCard.vue";
 import { VueEditor } from "vue3-editor";
 import ConfirmModal from "../components/ConfirmModal.vue";
-</script>
-
-<script>
-import StackBlitzSDK from "@stackblitz/sdk";
 import { mapState } from "vuex";
 export default {
+  components: {
+    DashboardNav,
+    SubmitedCard,
+    JoinedCard,
+    VueEditor,
+    ConfirmModal,
+  },
   data() {
     return {
       challenge: {
@@ -270,8 +274,8 @@ export default {
               challengeId: this.$route.params.id,
             }
           );
-          this.joined = { id };
-          this.submitted = submitted;
+          if (id) this.joined = { id };
+          if (submitted) this.submitted = submitted;
           if (this.submitted) {
             this.start();
             setTimeout(() => {

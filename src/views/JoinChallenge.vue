@@ -38,27 +38,18 @@
 import DashboardNav from "../components/DashboardNav.vue";
 import ChallengeCard from "../components/ChallengeCard.vue";
 import { useStore } from "vuex";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const store = useStore();
 store.dispatch("challenge/getAllChallenges");
 const uid = computed(() => store.getters["auth/account"].uid);
 const accountType = computed(() => store.getters["auth/accountType"]);
 const challenges = computed(() => store.getters["challenge/challenges"]);
-</script>
-<script>
-export default {
-  data() {
-    return {
-      open: false,
-      challengeID: "",
-    };
-  },
-  methods: {
-    deleteChallenge(id) {
-      this.challengeID = id;
-      this.open = true;
-    },
-  },
-};
+const open = ref(false);
+const challengeID = ref("");
+
+function deleteChallenge(id) {
+  challengeID.value = id;
+  open.value = true;
+}
 </script>

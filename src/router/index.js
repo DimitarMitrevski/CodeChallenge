@@ -1,65 +1,55 @@
 import { createWebHistory, createRouter } from "vue-router";
-import Home from "../views/Home.vue";
-import About from "../views/About.vue";
-import Login from "../views/Login.vue";
-import SignUp from "../views/SignUp.vue";
-import Dashboard from "../views/Dashboard.vue";
-import NewChallenge from "../views/NewChallenge.vue";
-import Profile from "../views/Profile.vue";
-import EditChallenge from "../views/EditChallenge.vue";
-import ChallengeView from "../views/ChallengeView.vue";
-import JoinChallenge from "../views/JoinChallenge.vue";
 
 const routes = [
   {
     path: "/",
     name: "Home",
-    component: Home,
+    component: () => import("../views/Home.vue"),
   },
   {
     path: "/about",
     name: "About",
-    component: About,
+    component: () => import("../views/About.vue"),
   },
   {
     path: "/login",
     name: "Login",
-    component: Login,
+    component: () => import("../views/Login.vue"),
   },
   {
     path: "/signup",
     name: "SignUp",
-    component: SignUp,
+    component: () => import("../views/Signup.vue"),
   },
   {
     path: "/dashboard",
     name: "Dashboard",
-    component: Dashboard,
+    component: () => import("../views/Dashboard.vue"),
   },
   {
     path: "/new/challenge",
     name: "NewChallenge",
-    component: NewChallenge,
+    component: () => import("../views/NewChallenge.vue"),
   },
   {
     path: "/profile",
     name: "Profile",
-    component: Profile,
+    component: () => import("../views/Profile.vue"),
   },
   {
     path: "/edit/:id",
     name: "EditChallenge",
-    component: EditChallenge,
+    component: () => import("../views/EditChallenge.vue"),
   },
   {
     path: "/challenge/:id",
     name: "ChallengeView",
-    component: ChallengeView,
+    component: () => import("../views/ChallengeView.vue"),
   },
   {
     path: "/join/challenge",
     name: "JoinChallenge",
-    component: JoinChallenge,
+    component: () => import("../views/JoinChallenge.vue"),
   },
 ];
 

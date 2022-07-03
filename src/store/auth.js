@@ -99,11 +99,13 @@ export default {
           });
       });
     },
-    signingOut() {
+    signingOut({ commit }) {
       signOut(auth)
         .then(() => {
           // Sign-out successful.
-          document.location.href = "/";
+          commit("SET_ACCOUNT", {});
+          commit("SET_ACCOUNT_TYPE", null);
+          //document.location.href = "/";
         })
         .catch((error) => {
           // An error happened.

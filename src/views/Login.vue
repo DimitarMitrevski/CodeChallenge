@@ -109,47 +109,46 @@
 
 <script setup>
 import { LockClosedIcon } from "@heroicons/vue/solid";
-</script>
-<script>
-export default {
-  data() {
-    return {
-      email: "",
-      password: "",
-      error: "",
-      success: "",
-    };
-  },
-  methods: {
-    login() {
-      this.reset();
-      this.$store
-        .dispatch("auth/logIn", {
-          email: this.email,
-          password: this.password,
-        })
-        .then((res) => {
-          this.$router.push("/dashboard");
-        })
-        .catch((err) => {
-          this.error = err;
-        });
-    },
-    frogotPW() {
-      this.reset();
-      this.$store
-        .dispatch("auth/forgotPassword", this.email)
-        .then((res) => {
-          this.success = res;
-        })
-        .catch((err) => {
-          this.error = err;
-        });
-    },
-    reset() {
-      this.error = "";
-      this.success = "";
-    },
-  },
-};
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+
+const router = useRouter();
+const store = useStore();
+
+const email = ref("");
+const password = ref("");
+const error = ref("");
+const success = ref("");
+
+function login() {
+  reset();
+  store
+    .dispatch("auth/logIn", {
+      email: email.value,
+      password: password.value,
+    })
+    .then((res) => {
+      router.push("/dashboard");
+    })
+    .catch((err) => {
+      error.value = err;
+    });
+}
+
+function reset() {
+  error.value = "";
+  success.value = "";
+}
+
+function frogotPW() {
+  store
+    .dispatch("auth/forgotPassword", email.value)
+    .then((res) => {
+      success.value = res;
+    })
+    .catch((err) => {
+      error.value = err;
+    });
+}
 </script>

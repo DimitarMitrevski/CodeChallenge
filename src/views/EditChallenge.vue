@@ -89,7 +89,7 @@ import DashboardNav from "../components/DashboardNav.vue";
 import ChallengeCard from "../components/ChallengeCard.vue";
 import { VueEditor } from "vue3-editor";
 const enviroments = ["Vue", "Angular", "React", "Nodejs"];
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 const { dispatch, getters } = useStore();
@@ -113,19 +113,11 @@ function updateChallenge() {
     router.push("/dashboard?alert=Challenge has been successfully updated!");
   });
 }
+onMounted(async () => {
+  const challenge = await dispatch("challenge/getChallengeById", id);
+  title.value = challenge.title;
+  description.value = challenge.description;
+  enviroment.value = challenge.enviroment;
+});
 </script>
-<script>
-export default {
-  async created() {
-    const challenge = await this.$store.dispatch(
-      "challenge/getChallengeById",
-      this.id
-    );
-    this.title = challenge.title;
-    this.description = challenge.description;
-    this.enviroment = challenge.enviroment;
-  },
-};
-</script>
-
 <style></style>

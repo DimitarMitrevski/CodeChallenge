@@ -196,15 +196,14 @@
     </main>
   </div>
 </template>
-
-<script setup>
-import DashboardNav from "../components/DashboardNav.vue";
-</script>
-
 <script>
 import { mapState } from "vuex";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import DashboardNav from "../components/DashboardNav.vue";
 export default {
+  components: {
+    DashboardNav,
+  },
   data() {
     return {
       displayName: "",
@@ -252,7 +251,10 @@ export default {
     },
     async uploadImage() {
       const storage = getStorage();
-      const storageRef = ref(storage, this.accountType);
+      const storageRef = ref(
+        storage,
+        `${this.accountType}/${Date.now()}-${this.file.name}`
+      );
 
       // 'file' comes from the Blob or File API
       this.photoURL = await uploadBytes(storageRef, this.file).then(

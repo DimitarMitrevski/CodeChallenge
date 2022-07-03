@@ -96,43 +96,45 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 import { ExclamationIcon } from "@heroicons/vue/outline";
+import { useStore } from "vuex";
+import { watch, defineEmits } from "vue";
+import { useRouter } from "vue-router";
+
+const store = useStore();
+const router = useRouter();
 
 const open = ref(false);
-</script>
-<script>
-export default {
-  props: {
-    openModal: {
-      type: Boolean,
-      default: false,
-    },
-    uid: {
-      type: String,
-      default: "",
-    },
-  },
-  methods: {
-    deleteChallenge() {
-      this.$store
-        .dispatch("challenge/deleteChallengeById", this.uid)
-        .then(() => {
-          this.$router.push(
-            "/dashboard?alert=Challenge has been successfully deleted!"
-          );
-          this.open = false;
-        });
-    },
-  },
 
-  watch: {
-    openModal(val) {
-      this.open = val;
-    },
-    open(val) {
-      if (!val) {
-        this.$emit("close");
-      }
-    },
+const props = defineProps({
+  openModal: {
+    type: Boolean,
+    default: false,
   },
-};
+  uid: {
+    type: String,
+    default: "",
+  },
+});
+const emit = defineEmits(["close"]);
+
+function deleteChallenge() {
+  store.dispatch("challenge/deleteChallengeById", props.uid).then(() => {
+    router.push("/dashboard?alert=Challenge has been successfully deleted!");
+    open.value = false;
+  });
+}
+watch(
+  () => props.openModal,
+  (val) => {
+    open.value = val;
+  }
+);
+watch(
+  () => open.value,
+  (val) => {
+    if (!val) {
+      emit("close");
+    }
+  }
+);
 </script>

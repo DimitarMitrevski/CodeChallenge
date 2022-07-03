@@ -117,13 +117,12 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { UserCircleIcon } from "@heroicons/vue/solid";
-</script>
-
 <script>
+import { UserCircleIcon } from "@heroicons/vue/solid";
 export default {
+  components: {
+    UserCircleIcon,
+  },
   data() {
     return {
       accountType: "Employer",
